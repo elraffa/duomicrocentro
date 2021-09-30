@@ -1,7 +1,7 @@
 import './style.css';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { Mesh } from 'three';
+import { BlendingEquation, Mesh } from 'three';
 import * as dat from 'dat.gui';
 
 /**
@@ -39,6 +39,15 @@ const environmentMapTexture = cubeTextureLoader.load([
   '/textures/environmentMaps/5/pz.png',
   '/textures/environmentMaps/5/nz.png',
 ]);
+
+const environmentMapTexture01 = cubeTextureLoader.load([
+  '/textures/environmentMaps/6/px.png',
+  '/textures/environmentMaps/6/nx.png',
+  '/textures/environmentMaps/6/py.png',
+  '/textures/environmentMaps/6/ny.png',
+  '/textures/environmentMaps/6/pz.png',
+  '/textures/environmentMaps/6/nz.png',
+])
 
 /**
  * Base
@@ -93,9 +102,20 @@ const scene = new THREE.Scene();
 // material.alphaMap = doorAlphaTexture;
 
 const material = new THREE.MeshStandardMaterial();
-material.metalness = 0.7;
-material.roughness = 0.2;
+material.metalness = 1;
+material.roughness = 0;
 material.envMap = environmentMapTexture;
+
+const material01 = new THREE.MeshStandardMaterial();
+material01.metalness = 1;
+material01.roughness = 0;
+material01.envMap = environmentMapTexture01;
+
+const material02 = new THREE.PointsMaterial({
+  size: 0.005,
+  color: 'indigo',
+  blending: THREE.AdditiveBlending
+})
 
 gui.add(material, 'metalness').min(0).max(1).step(0.0001);
 gui.add(material, 'roughness').min(0).max(1).step(0.0001);
@@ -104,10 +124,8 @@ gui.add(material, 'displacementScale').min(0).max(1).step(0.0001);
 
 const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 64, 64), material);
 const plane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1, 100, 100), material);
-const torus = new THREE.Mesh(
-  new THREE.TorusGeometry(0.5, 0.2, 64, 128),
-  material
-);
+const sphere01 = new THREE.Mesh(new THREE.SphereGeometry(0.5, 64, 64), material01);
+
 
 sphere.geometry.setAttribute(
   'uv2',
@@ -120,14 +138,31 @@ plane.geometry.setAttribute(
   new THREE.BufferAttribute(plane.geometry.attributes.uv.array, 2)
 );
 
-torus.geometry.setAttribute(
+sphere01.geometry.setAttribute(
   'uv2',
-  new THREE.BufferAttribute(torus.geometry.attributes.uv.array, 2)
+  new THREE.BufferAttribute(sphere01.geometry.attributes.uv.array, 2)
 );
-torus.position.x = 1.5;
+sphere01.position.x = 1.5;
 
-scene.add(sphere, plane, torus);
 
+
+const particlesGeometry = new THREE.BufferGeometry;
+const particlesCount = 5000;
+
+const posArray = new Float32Array(particlesCount * 3);
+
+for(let i = 0; i <particlesCount *3; i++ ) {
+  // posArray[i] = Math.random()
+  // posArray[i] = Math.random() - 0.5
+  posArray[i] = (Math.random() - 0.5) * (Math.random() * 5);
+}
+
+
+particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3))
+
+const particlesMesh = new THREE.Points(particlesGeometry, material02)
+
+scene.add(sphere, plane, sphere01, particlesMesh);
 /**
  * Lights
  */
@@ -201,11 +236,11 @@ const tick = () => {
   // Update objects
   sphere.rotation.y = 0.1 * elapsedTime;
   plane.rotation.y = 0.1 * elapsedTime;
-  torus.rotation.y = 0.1 * elapsedTime;
+  sphere01.rotation.y = 0.1 * elapsedTime;
 
   sphere.rotation.x = 0.15 * elapsedTime;
   plane.rotation.x = 0.15 * elapsedTime;
-  torus.rotation.x = 0.15 * elapsedTime;
+
 
   // Update controls
   controls.update();
