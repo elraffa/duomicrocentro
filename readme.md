@@ -1,4 +1,5 @@
-# Three.js Journey
+# Dúo Microcentro
+## New web in Three.JS
 
 ## Setup
 Download [Node.js](https://nodejs.org/en/download/).
@@ -14,4 +15,4 @@ npm run dev
 # Build for production in the dist/ directory
 npm run build
 ```
-# duomicrocentro
+
