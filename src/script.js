@@ -4,6 +4,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { BlendingEquation, Mesh } from 'three';
 import * as dat from 'dat.gui';
 
+// check tut: https://www.youtube.com/watch?v=dLYMzNmILQA
+
 /**
  * Debug
  */
